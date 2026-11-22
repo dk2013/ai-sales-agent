@@ -1,0 +1,12 @@
+# Caddy site for Keycloak (shared edge proxy). Replace the host name.
+sso.example.com {
+	encode zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	# The admin console and admin REST API are not exposed to the internet (use an SSH tunnel to port 8080).
+	@admin path /admin /admin/*
+	respond @admin "Not found" 404
+	reverse_proxy sso-keycloak:8080
+}

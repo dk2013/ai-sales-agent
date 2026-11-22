@@ -1,0 +1,11 @@
+node_modules
+.next
+.git
+.env
+.env.*
+!.env.example
+docs
+BUILD_LOG.md
+keycloak/realm-prod.json
+*.log
+.DS_Store

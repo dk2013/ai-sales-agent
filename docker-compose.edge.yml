@@ -1,0 +1,23 @@
+# Override for a server where a shared Caddy ("edge") proxies several projects over the Docker network `edge`.
+# The edge reaches the dashboard as ai-sales-agent:3002 and Keycloak as sso-keycloak:8080 (see deploy/*.caddy.example).
+# The worker joins too, to call the RAG assistant internally (rag-knowledge-assistant:3000).
+services:
+  app:
+    networks:
+      default: {}
+      edge:
+        aliases: [ai-sales-agent]
+  worker:
+    networks:
+      default: {}
+      edge: {}
+  keycloak:
+    networks:
+      default: {}
+      edge:
+        aliases: [sso-keycloak]
+
+networks:
+  edge:
+    name: edge
+    external: true

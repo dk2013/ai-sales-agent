@@ -1,0 +1,77 @@
+# Production stack for the public demo: dashboard, worker, Postgres and Keycloak in their own Docker network.
+# A shared edge proxy (Caddy) on the host network "edge" serves the dashboard and Keycloak (docker-compose.edge.yml).
+#
+#   bash deploy/render-realm.sh                     # builds keycloak/realm-prod.json from the template and .env.production
+#   docker compose -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production up -d
+#   docker compose -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production run --rm app npm run db:migrate
+name: ai-sales-agent
+
+services:
+  db:
+    image: postgres:17
+    restart: unless-stopped
+    command: ["postgres", "-c", "shared_buffers=32MB", "-c", "max_connections=30", "-c", "work_mem=4MB"]
+    environment:
+      POSTGRES_USER: agent
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+      POSTGRES_DB: agent
+      KEYCLOAK_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD:?Set KEYCLOAK_DB_PASSWORD in .env.production}
+    volumes:
+      - agent_pgdata:/var/lib/postgresql/data
+      - ./deploy/init-keycloak-db.sh:/docker-entrypoint-initdb.d/init-keycloak-db.sh:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U agent -d agent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    mem_limit: 256m
+
+  app:
+    image: ai-sales-agent:latest
+    build: .
+    restart: unless-stopped
+    env_file: .env.production
+    environment:
+      DATABASE_URL: postgres://agent:${POSTGRES_PASSWORD}@db:5432/agent
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 384m
+
+  worker:
+    image: ai-sales-agent:latest
+    restart: unless-stopped
+    command: ["npm", "run", "-s", "worker"]
+    env_file: .env.production
+    environment:
+      DATABASE_URL: postgres://agent:${POSTGRES_PASSWORD}@db:5432/agent
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 384m
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.4
+    restart: unless-stopped
+    command: ["start", "--import-realm"]
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://db:5432/keycloak
+      KC_DB_USERNAME: keycloak
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_HOSTNAME: ${KEYCLOAK_PUBLIC_URL:?Set KEYCLOAK_PUBLIC_URL in .env.production}
+      KC_HTTP_ENABLED: "true"            # TLS ends at the edge proxy
+      KC_PROXY_HEADERS: xforwarded
+      KC_HEALTH_ENABLED: "true"
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD:?Set KEYCLOAK_ADMIN_PASSWORD in .env.production}
+      JAVA_OPTS_KC_HEAP: "-Xms128m -Xmx320m"
+    volumes:
+      - ./keycloak/realm-prod.json:/opt/keycloak/data/import/realm.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    mem_limit: 640m
+
+volumes:
+  agent_pgdata:

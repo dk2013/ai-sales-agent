@@ -1,4 +1,8 @@
 // Login page: one button that starts the Keycloak SSO flow. Demo accounts are listed for visitors.
+import { config } from "@/lib/config";
+
+export const dynamic = "force-dynamic";
+
 const ERRORS: Record<string, string> = {
   expired: "The sign-in took too long. Please try again.",
   callback: "Sign-in failed. Please try again.",
@@ -27,6 +31,13 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
             <tr><td className="py-1 font-mono">viewer / viewer</td><td className="text-[var(--muted)]">read-only</td></tr>
           </tbody>
         </table>
+        {config.demoMode && (
+          <p className="mt-3 text-xs text-[var(--muted)]">
+            Public demo with sample data about a fictional company. The sandbox resets every night
+            {config.dailyRunLimit ? `; up to ${config.dailyRunLimit} agent runs per day` : ""}. Nothing leaves the sandbox: replies go to a
+            fake outbox.
+          </p>
+        )}
       </div>
     </div>
   );

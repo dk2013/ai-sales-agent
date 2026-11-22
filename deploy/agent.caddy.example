@@ -1,0 +1,13 @@
+# Caddy site for the dashboard (shared edge proxy). Replace the host name.
+agent.example.com {
+	# compress pages, not API responses that the UI polls
+	@compress not path /api/*
+	encode @compress zstd gzip
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		-Server
+	}
+	reverse_proxy ai-sales-agent:3002 {
+		header_up X-Real-IP {remote_host}
+	}
+}

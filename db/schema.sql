@@ -126,3 +126,9 @@ CREATE TABLE IF NOT EXISTS jobs (
   updated_at  TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX IF NOT EXISTS jobs_queue_idx ON jobs (status, run_after) WHERE status = 'queued';
+
+-- Small key/value store for the app itself (for example the date of the last nightly demo reset)
+CREATE TABLE IF NOT EXISTS meta (
+  key    TEXT PRIMARY KEY,
+  value  TEXT NOT NULL
+);
