@@ -2,6 +2,8 @@
 
 A team of AI agents works a B2B sales inbox: it triages each email, qualifies leads with CRM, pricing and knowledge-base tools exposed over **MCP**, and drafts the CRM update, a meeting and the reply. **Nothing is sent, booked or saved until a sales manager approves it.** Sign-in is **single sign-on with Keycloak** (OpenID Connect + PKCE) with role-based permissions.
 
+**Live demo: [agent.metamaker.ca](https://agent.metamaker.ca)** (sign in as `manager` / `manager` to run agents and approve, or `viewer` / `viewer` for read-only; sample data, the sandbox resets every night, limited runs per day).
+
 Built with **Next.js 15, TypeScript, Node.js, PostgreSQL, the MCP TypeScript SDK, OpenAI (tool calling + structured outputs) and Keycloak**. No agent framework: the agent loop, orchestration and approval flow are plain, readable TypeScript.
 
 ![Demo: running the agents on an enterprise lead, approving the CRM update, meeting and reply, and the result in the CRM](docs/demo.gif)
@@ -86,6 +88,22 @@ CLI: `npm run agent -- carter-logistics` runs one email and prints the timeline 
 { "mcpServers": { "routewise-sales": { "command": "npm", "args": ["--prefix", "/path/to/ai-sales-agent", "run", "-s", "mcp"] } } }
 ```
 (`-s` keeps npm quiet: stdout belongs to the MCP protocol.)
+
+## Public demo deployment
+
+The live demo runs on a 2 GB Ubuntu droplet: dashboard, worker, Postgres and Keycloak in Docker, behind a shared Caddy proxy with automatic HTTPS. Keycloak runs in production mode on its own Postgres database; its admin console is not exposed to the internet.
+
+```bash
+ssh root@HOST 'bash -s' < deploy/provision.sh        # once: deploy user, firewall, swap, Docker, Caddy edge proxy
+cp .env.production.example .env.production            # fill in the blanks (random values: openssl rand -hex 24)
+bash deploy/render-realm.sh                           # Keycloak realm with your app URL and client secret
+docker compose -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production up -d --build
+docker compose -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production run --rm app npm run db:migrate
+docker compose -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production run --rm app npm run db:seed
+bash deploy/harden-keycloak.sh -f docker-compose.prod.yml -f docker-compose.edge.yml --env-file .env.production
+```
+
+Then copy `deploy/agent.caddy.example` and `deploy/sso.caddy.example` to `/opt/edge-sites/` with your host names and reload Caddy. Demo protection: `DEMO_MODE=true` resets the sandbox every night, `DAILY_RUN_LIMIT` caps agent runs per day, and the shared demo accounts cannot open the Keycloak account console.
 
 ## Project structure
 
