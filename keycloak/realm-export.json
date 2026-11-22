@@ -1,0 +1,74 @@
+{
+  "realm": "routewise",
+  "displayName": "RouteWise (demo)",
+  "enabled": true,
+  "registrationAllowed": false,
+  "loginWithEmailAllowed": true,
+  "bruteForceProtected": true,
+  "accessTokenLifespan": 300,
+  "ssoSessionIdleTimeout": 28800,
+  "roles": {
+    "realm": [
+      { "name": "sales-manager", "description": "Can run agents and approve or reject their proposals" },
+      { "name": "viewer", "description": "Read-only access to the dashboard" }
+    ]
+  },
+  "clients": [
+    {
+      "clientId": "ai-sales-agent",
+      "name": "AI Sales Agent dashboard",
+      "enabled": true,
+      "protocol": "openid-connect",
+      "publicClient": false,
+      "clientAuthenticatorType": "client-secret",
+      "secret": "dev-client-secret-change-me",
+      "standardFlowEnabled": true,
+      "directAccessGrantsEnabled": false,
+      "implicitFlowEnabled": false,
+      "serviceAccountsEnabled": false,
+      "redirectUris": ["http://localhost:3002/api/auth/callback"],
+      "webOrigins": ["http://localhost:3002"],
+      "attributes": {
+        "pkce.code.challenge.method": "S256",
+        "post.logout.redirect.uris": "http://localhost:3002/login"
+      },
+      "protocolMappers": [
+        {
+          "name": "realm roles in ID token",
+          "protocol": "openid-connect",
+          "protocolMapper": "oidc-usermodel-realm-role-mapper",
+          "config": {
+            "claim.name": "roles",
+            "jsonType.label": "String",
+            "multivalued": "true",
+            "id.token.claim": "true",
+            "access.token.claim": "true",
+            "userinfo.token.claim": "true"
+          }
+        }
+      ]
+    }
+  ],
+  "users": [
+    {
+      "username": "manager",
+      "email": "manager@routewise.example",
+      "emailVerified": true,
+      "firstName": "Morgan",
+      "lastName": "Lee",
+      "enabled": true,
+      "realmRoles": ["sales-manager", "default-roles-routewise"],
+      "credentials": [{ "type": "password", "value": "manager", "temporary": false }]
+    },
+    {
+      "username": "viewer",
+      "email": "viewer@routewise.example",
+      "emailVerified": true,
+      "firstName": "Val",
+      "lastName": "Park",
+      "enabled": true,
+      "realmRoles": ["viewer", "default-roles-routewise"],
+      "credentials": [{ "type": "password", "value": "viewer", "temporary": false }]
+    }
+  ]
+}

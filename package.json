@@ -1,0 +1,46 @@
+{
+  "name": "ai-sales-agent",
+  "version": "0.1.0",
+  "private": true,
+  "description": "AI sales agent: multi-agent lead triage, qualification and reply drafting with MCP tools, human approval and Keycloak SSO (Next.js + Node.js + PostgreSQL + OpenAI)",
+  "license": "MIT",
+  "scripts": {
+    "dev": "next dev -p 3002",
+    "build": "next build",
+    "start": "next start -p 3002",
+    "worker": "tsx scripts/worker.ts",
+    "mcp": "tsx src/mcp/server.ts",
+    "db:up": "docker compose up -d",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "db:seed": "tsx scripts/seed.ts",
+    "agent": "tsx scripts/run-agent.ts",
+    "eval": "tsx scripts/eval.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "overrides": {
+    "next": {
+      "postcss": "^8.5.33",
+      "sharp": "^0.35.5"
+    }
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.2",
+    "jose": "^6.2.18",
+    "next": "^15.5.29",
+    "openid-client": "^6.9.1",
+    "pg": "^8.23.1",
+    "react": "^19.1.10",
+    "react-dom": "^19.1.10",
+    "zod": "^4.6.7"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "4.1.8",
+    "@types/node": "^26.6.6",
+    "@types/pg": "^8.23.1",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "tailwindcss": "4.1.8",
+    "tsx": "^4.23.15",
+    "typescript": "^5.9.3"
+  }
+}

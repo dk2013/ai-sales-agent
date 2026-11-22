@@ -1,0 +1,16 @@
+{
+  "contacts": [
+    { "name": "Alex Novak", "email": "alex@novakcouriers.example", "company": "Novak Couriers", "fleet_size": 9, "stage": "customer",
+      "deal": { "plan": "Starter", "vehicles": 9, "monthly_value": 441, "stage": "won" },
+      "activities": [{ "type": "note", "summary": "Customer since last year on Starter (9 vehicles). Happy with route optimization.", "days_ago": 340 }] },
+    { "name": "Kevin O'Brien", "email": "kevin@obrienmoving.example", "company": "O'Brien Moving", "fleet_size": 30, "stage": "customer",
+      "deal": { "plan": "Growth", "vehicles": 30, "monthly_value": 2370, "stage": "won" },
+      "activities": [{ "type": "note", "summary": "Growth plan, 30 vehicles. Uses driver app heavily.", "days_ago": 120 }] },
+    { "name": "Lena Fischer", "email": "lena@fischerflowers.example", "company": "Fischer Flowers", "fleet_size": 8, "stage": "customer",
+      "deal": { "plan": "Growth", "vehicles": 8, "monthly_value": 632, "stage": "won" },
+      "activities": [{ "type": "note", "summary": "Bought the annual Growth plan 20 days ago.", "days_ago": 20 }] },
+    { "name": "Rita Gomez", "email": "rita@gomezgroceries.example", "company": "Gomez Groceries", "fleet_size": 15, "stage": "qualified",
+      "deal": { "plan": "Growth", "vehicles": 15, "monthly_value": 1185, "stage": "open" },
+      "activities": [{ "type": "meeting", "summary": "Intro call, waiting for budget approval.", "days_ago": 6 }] }
+  ]
+}
