@@ -79,7 +79,8 @@ export const qualifyAgent: AgentDef = {
 Do this:
 1. Call crm_find_contact with the sender's email (and the company if no match) to see if they are already a customer.
 2. Only if the triage has a fleet size, call pricing_quote with exactly that number (pass annual / nonprofit when the triage says so). Never guess a vehicle count.
-3. For each product question (at most 2), call knowledge_search. Use only what the knowledge base says. If it does not mention a specific vendor or product name (for example "Microsoft Entra ID"), search again for the general capability (for example "single sign-on SAML OpenID Connect").
+3. For each product question (at most 2), call knowledge_search. Ask in general product terms, as a customer of any vendor would: "Which plan includes single sign-on (SSO)?" rather than "SSO with Microsoft Entra ID", "Is there an uptime SLA?" rather than repeating the email. Use only what the knowledge base says; if it could not find something, you may try once more with broader words.
+   Standard protocols cover vendors: SSO via SAML / OpenID Connect works with identity providers such as Microsoft Entra ID, Okta or Google.
 Then return the qualification. Score 0-100: fleet size and fit with a plan, clear buying intent, meeting request, existing customer upgrading = high.
 priority: high (score >= 70), medium (40-69), low (< 40). plan comes from pricing_quote; "unknown" if the fleet size is unknown.
 quote_summary: one short sentence with the price from pricing_quote, or null.
